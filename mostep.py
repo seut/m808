@@ -22,6 +22,9 @@ class MoStepApp(monome.GridApp):
     def on_grid_ready(self):
         self.data_beat = [[1 for row in range(self.grid.width)] for col in range(self.grid.height)]
         self.data_state = [[0 for row in range(self.grid.width)] for col in range(self.grid.height)]
+        if self.alive:
+            self.data_state[self.grid.width - 1][0] = int(self.alive)
+            self.grid.led_set(self.grid.width - 1, 0, int(self.alive))
         self.task = asyncio.ensure_future(self.run())
 
     def on_grid_key(self, x, y, s):
@@ -30,7 +33,8 @@ class MoStepApp(monome.GridApp):
             if s == 1:
                 if x == self.grid.width - 1:
                     self.alive = not self.alive
-                    self.grid.led_set(self.grid.width - 1, 0, int(not self.alive))
+                    self.grid.led_set(self.grid.width - 1, 0, int(self.alive))
+                    self.data_state[self.grid.width - 1][0] = int(self.alive)
                 elif x == self.grid.width - 2 and self.speed - 0.05 > 0.001:
                     self.grid.led_set(self.grid.width - 2, 0, 1)
                     self.speed -= 0.05
