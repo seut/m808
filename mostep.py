@@ -40,24 +40,24 @@ class MoStepApp(monome.GridApp):
         try:
             while True:
                 if self.alive:
-                    self.beat()
-                await asyncio.sleep(0.2)
+                    await self.beat()
+                else:
+                    await asyncio.sleep(0.2)
         except asyncio.CancelledError:
             pass
 
-    def beat(self):
+    async def beat(self):
         for i, col in enumerate(self.data_beat):
             self.grid.led_col(i, 0, col)
             self.send_notes(i)
-            time.sleep(0.2)
+            #time.sleep(0.2)
+            await asyncio.sleep(0.2)
             self.grid.led_col(i, 0, self.data_state[i])
 
     def send_notes(self, col_idx):
-        print("col_idx: %s, data: %s" % (col_idx, self.data_state[col_idx]))
         for i, r in enumerate(self.data_state[col_idx]):
-            print("row idx %s, value %s" % (i, r))
             if r == 1:
-                print("sending note %s for row %s" % (notes[i], i))
+                logging.debug("sending note %s for row %s" % (notes[i], i))
                 msg = mido.Message('note_on', note=notes[i], channel=channel)
                 self.port.send(msg)
 
