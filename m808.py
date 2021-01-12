@@ -10,7 +10,7 @@ notes = [0, 56, 50, 47, 45, 42, 38, 35]
 channel = 9
 
 
-class MoStepApp(monome.GridApp):
+class M808(monome.GridApp):
 
     def __init__(self):
         super().__init__()
@@ -94,7 +94,7 @@ if __name__ == '__main__':
     print_ports('Output Ports:', mido.get_output_names())
 
     loop = asyncio.get_event_loop()
-    app = MoStepApp()
+    app = M808()
 
     def serialosc_device_added(id, type, port):
         print('connecting to {} ({})'.format(id, type))
