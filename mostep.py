@@ -2,10 +2,9 @@
 
 import asyncio
 import logging
-import time
 
-import monome
 import mido
+import monome
 
 notes = [0, 56, 50, 47, 45, 42, 38, 35]
 channel = 9
@@ -18,6 +17,7 @@ class MoStepApp(monome.GridApp):
         self.alive = True
         self.port = mido.open_output('fluid:fluid 128:0')
         self.task = asyncio.ensure_future(asyncio.sleep(0))
+        self.speed = 0.2
 
     def on_grid_ready(self):
         self.data_beat = [[1 for row in range(self.grid.width)] for col in range(self.grid.height)]
@@ -27,9 +27,20 @@ class MoStepApp(monome.GridApp):
     def on_grid_key(self, x, y, s):
         logging.debug("button pressed: %s, %s" % (x, y))
         if y == 0:
-            if x == self.grid.width - 1 and s == 1:
-                self.alive = not self.alive
-                self.grid.led_set(self.grid.width - 1, 0, int(not self.alive))
+            if s == 1:
+                if x == self.grid.width - 1:
+                    self.alive = not self.alive
+                    self.grid.led_set(self.grid.width - 1, 0, int(not self.alive))
+                elif x == self.grid.width - 2 and self.speed - 0.05 > 0.001:
+                    self.grid.led_set(self.grid.width - 2, 0, 1)
+                    self.speed -= 0.05
+                    logging.debug("Current speed: %s" % self.speed)
+                    self.grid.led_set(self.grid.width - 2, 0, 0)
+                elif x == self.grid.width - 3:
+                    self.grid.led_set(self.grid.width - 3, 0, 1)
+                    self.speed += 0.05
+                    logging.debug("Current speed: %s" % self.speed)
+                    self.grid.led_set(self.grid.width - 3, 0, 0)
             return
         if s == 1:
             row, col = y, x
@@ -50,8 +61,7 @@ class MoStepApp(monome.GridApp):
         for i, col in enumerate(self.data_beat):
             self.grid.led_col(i, 0, col)
             self.send_notes(i)
-            #time.sleep(0.2)
-            await asyncio.sleep(0.2)
+            await asyncio.sleep(self.speed)
             self.grid.led_col(i, 0, self.data_state[i])
 
     def send_notes(self, col_idx):
