@@ -30,6 +30,10 @@ class M808(monome.GridApp):
         self.init_state()
         self.task = asyncio.ensure_future(self.run())
 
+    def on_grid_disconnect(self):
+        self.grid.led_all(0)
+        self.task.cancel()
+
     def init_state(self):
         self.data_state = []
         for p in range(self.pages):
